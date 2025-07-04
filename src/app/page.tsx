@@ -1,12 +1,14 @@
 
+import AreasOfLawSection from "@/components/AreasOfLawSection";
 import HeroSection from "@/components/HeroSection";
 import Navbar from "@/components/Navbar";
 import { fetchHeroSection } from "@/lib/queries";
-
+import { fetchProductCategories } from '@/lib/queries';
 
 export default async function Home() {
   const hero = await fetchHeroSection();
   // console.log("Hero Section Data:", hero);
+  const categories = await fetchProductCategories();
 
   return (
     <div>
@@ -20,7 +22,9 @@ export default async function Home() {
             secondaryBtn={hero.hero_button_secondary}
             imageUrl={hero.hero_image_url}             
              />
-          )}        
+          )} 
+
+          <AreasOfLawSection categories={categories} />
       </main>
     </div>
   );
