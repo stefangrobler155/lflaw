@@ -1,5 +1,6 @@
 import { HeroSection, ProductCategory } from "./types";
 
+//Fetch Hero Section data from WordPress
 const API_URL = process.env.NEXT_PUBLIC_WORDPRESS_API_URL;
 
 export async function fetchHeroSection(): Promise<HeroSection | null> {
@@ -57,6 +58,7 @@ return {
 
 
 // lib/queries.ts
+//Fecth WooCommerce categories for the "Contracts" section
 export async function fetchWooCategories() {
   const base = process.env.NEXT_PUBLIC_WC_BASE_URL;
   const key = process.env.NEXT_PUBLIC_WC_CONSUMER_KEY;
@@ -81,6 +83,7 @@ export async function fetchWooCategories() {
 }
 
 // src/lib/queries.ts
+
 
 export async function fetchProductCategories(): Promise<ProductCategory[]> {
   const baseUrl = process.env.WOOCOMMERCE_API_URL;
@@ -108,3 +111,23 @@ export async function fetchProductCategories(): Promise<ProductCategory[]> {
     cat.slug !== "uncategorized"  // Exclude "Uncategorized"
   );
 }
+
+//Fetch products by category slug
+// This function fetches products based on the category slug
+
+export async function fetchProductsByCategorySlug(slug: string) {
+  const base = process.env.WOOCOMMERCE_API_URL;
+  const key = process.env.WOOCOMMERCE_CONSUMER_KEY;
+  const secret = process.env.WOOCOMMERCE_CONSUMER_SECRET;
+
+  const categoryRes = await fetch(`${base}/products/categories?slug=${slug}&consumer_key=${key}&consumer_secret=${secret}`);
+  const [category] = await categoryRes.json();
+
+  if (!category?.id) return [];
+
+  const productRes = await fetch(`${base}/products?category=${category.id}&consumer_key=${key}&consumer_secret=${secret}`);
+  const data = await productRes.json();
+
+  return data;
+}
+

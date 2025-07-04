@@ -36,10 +36,7 @@ const AreasOfLawSection: React.FC<Props> = ({ categories }) => {
               {cat.description && (
                 <p className="text-gray-600 text-sm mb-4">{cat.description}</p>
               )}
-              <Link
-                href={`/category/${cat.slug}`}
-                className="inline-block mt-2 px-4 py-2 bg-black text-white text-sm rounded hover:bg-gray-800 transition"
-              >
+              <Link href={`/contracts/${cat.slug}`} className="btn">
                 View Contracts
               </Link>
             </div>
