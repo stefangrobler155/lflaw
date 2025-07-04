@@ -1,19 +1,27 @@
-"use client";
-import Hero from "@/components/Hero";
-import Navbar from "@/components/Navbar";
-import Image from "next/image";
 
-export default function Home() {
+import HeroSection from "@/components/HeroSection";
+import Navbar from "@/components/Navbar";
+import { fetchHeroSection } from "@/lib/queries";
+
+
+export default async function Home() {
+  const hero = await fetchHeroSection();
+  // console.log("Hero Section Data:", hero);
+
   return (
     <div>
       <main className="">
         <Navbar />
-        <Hero />
-        
+        {hero && ( 
+          <HeroSection
+            title={hero.hero_title}
+            subtitle={hero.hero_subtitle}
+            primaryBtn={hero.hero_button_primary}
+            secondaryBtn={hero.hero_button_secondary}
+            imageUrl={hero.hero_image_url}             
+             />
+          )}        
       </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-       
-      </footer>
     </div>
   );
 }
