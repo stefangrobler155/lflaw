@@ -11,12 +11,12 @@ type Product = {
 
 export default function ProductCard({ product }: { product: Product }) {
   return (
-    <div className="bg-white dark:bg-black/80 border border-gray-200 dark:border-gray-700 rounded-lg shadow hover:shadow-lg transition overflow-hidden">
+    <div className="color-white border border-gray-200 dark:border-gray-700 rounded-lg shadow hover:shadow-lg transition overflow-hidden">
       {product.images?.[0]?.src ? (
         <img
           src={product.images[0].src}
           alt={product.name}
-          className="w-full h-48 object-cover"
+          className="w-full h-50 aspect-square object-scale-down hover:scale-105 transition-transform duration-300"
         />
       ) : (
         <div className="w-full h-48 bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-sm text-gray-500">

@@ -1,7 +1,6 @@
 
 import AreasOfLawSection from "@/components/AreasOfLawSection";
 import HeroSection from "@/components/HeroSection";
-import Navbar from "@/components/Navbar";
 import { fetchHeroSection } from "@/lib/queries";
 import { fetchProductCategories } from '@/lib/queries';
 
@@ -13,7 +12,6 @@ export default async function Home() {
   return (
     <div>
       <main className="">
-        <Navbar />
         {hero && ( 
           <HeroSection
             title={hero.hero_title}

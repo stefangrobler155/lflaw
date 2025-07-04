@@ -1,3 +1,4 @@
+import Navbar from "@/components/Navbar";
 import "./globals.css";
 import type { Metadata } from "next";
 import { DM_Serif_Display, Inter, Montserrat } from "next/font/google";
@@ -35,6 +36,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${headingFont.variable} ${bodyFont.variable} ${accentFont.variable} antialiased`}>
+        <Navbar />
         {children}
       </body>
     </html>

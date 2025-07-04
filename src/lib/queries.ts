@@ -1,4 +1,4 @@
-import { HeroSection, ProductCategory } from "./types";
+import { HeroSection, ProductCategory, Product } from "./types";
 
 //Fetch Hero Section data from WordPress
 const API_URL = process.env.NEXT_PUBLIC_WORDPRESS_API_URL;
@@ -129,5 +129,26 @@ export async function fetchProductsByCategorySlug(slug: string) {
   const data = await productRes.json();
 
   return data;
+}
+
+
+//fetch all products
+// This function fetches all products from the WooCommerce API
+export async function fetchAllProducts(): Promise<Product[]> {
+  const base = process.env.WOOCOMMERCE_API_URL;
+  const key = process.env.WOOCOMMERCE_CONSUMER_KEY;
+  const secret = process.env.WOOCOMMERCE_CONSUMER_SECRET;
+
+  const res = await fetch(
+    `${base}/products?per_page=100&consumer_key=${key}&consumer_secret=${secret}`,
+    { cache: "no-store" }
+  );
+
+  if (!res.ok) {
+    console.error("Failed to fetch all products");
+    return [];
+  }
+
+  return res.json();
 }
 

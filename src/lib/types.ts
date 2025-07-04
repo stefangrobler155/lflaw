@@ -1,3 +1,6 @@
+//export hero section type
+// This type represents the hero section data structure in WordPress
+// It includes the title, subtitle, buttons, and image URL
 export type HeroButton = {
   text: string;
   url: string;
@@ -11,7 +14,8 @@ export type HeroSection = {
   hero_image_url: string;
 };
 
-// src/lib/types.ts
+//export product category type
+// This type represents a product category in WooCommerce
 export type ProductCategory = {
   id: number;
   name: string;
@@ -22,4 +26,15 @@ export type ProductCategory = {
     src: string;
     alt?: string;
   };
+};
+
+//export product type
+// This type represents a product in WooCommerce
+export type Product = {
+  id: number;
+  name: string;
+  slug: string;
+  price: string;
+  images: { src: string; alt?: string }[];
+  categories: { id: number; name: string; slug: string }[];
 };
