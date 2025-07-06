@@ -152,3 +152,22 @@ export async function fetchAllProducts(): Promise<Product[]> {
   return res.json();
 }
 
+// Fetch product by slug
+export async function fetchProductBySlug(slug: string): Promise<Product | null> {
+  const base = process.env.WOOCOMMERCE_API_URL;
+  const key = process.env.WOOCOMMERCE_CONSUMER_KEY;
+  const secret = process.env.WOOCOMMERCE_CONSUMER_SECRET;
+  const res = await fetch(
+    `${base}/products?slug=${slug}&consumer_key=${key}&consumer_secret=${secret}`,
+    { cache: "no-store" }
+  );
+  if (!res.ok) {
+    console.error(`Failed to fetch product with slug "${slug}"`);
+    return null;
+  }
+  const products: Product[] = await res.json();
+  console.log(`Fetched product with slug "${slug}":`, products);
+  
+  return products.length > 0 ? products[0] : null;
+}
+

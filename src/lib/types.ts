@@ -35,6 +35,8 @@ export type Product = {
   name: string;
   slug: string;
   price: string;
+  description: string;
+  short_description: string;
   images: { src: string; alt?: string }[];
   categories: { id: number; name: string; slug: string }[];
 };

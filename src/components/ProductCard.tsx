@@ -16,7 +16,7 @@ export default function ProductCard({ product }: { product: Product }) {
         <img
           src={product.images[0].src}
           alt={product.name}
-          className="w-full h-50 aspect-square object-scale-down hover:scale-105 transition-transform duration-300"
+          className="w-full h-50 aspect-square object-cover"
         />
       ) : (
         <div className="w-full h-48 bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-sm text-gray-500">
@@ -29,7 +29,7 @@ export default function ProductCard({ product }: { product: Product }) {
         <p className="text-sm text-gray-500 mb-4">R{product.price}</p>
 
         <Link
-          href={`/product/${product.slug}`}
+          href={`/contracts/contract/${product.slug}`}
           className="inline-block px-4 py-2 bg-black text-white text-sm rounded hover:bg-gray-800 transition"
         >
           View Details
