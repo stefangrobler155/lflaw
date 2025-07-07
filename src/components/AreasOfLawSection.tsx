@@ -36,7 +36,7 @@ const AreasOfLawSection: React.FC<Props> = ({ categories }) => {
               {cat.description && (
                 <p className="text-gray-600 text-sm mb-4">{cat.description}</p>
               )}
-              <Link href={`/contracts/${cat.slug}`} className="btn">
+              <Link href={`/contracts/category/${cat.slug}`} className="btn">
                 View Contracts
               </Link>
             </div>

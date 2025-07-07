@@ -1,13 +1,7 @@
 // src/components/ProductCard.tsx
 import Link from "next/link";
+import { Product } from "@/lib/types"
 
-type Product = {
-  id: number;
-  name: string;
-  slug: string;
-  images: { src: string; alt?: string }[];
-  price: string;
-};
 
 export default function ProductCard({ product }: { product: Product }) {
   return (

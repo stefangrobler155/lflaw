@@ -166,7 +166,6 @@ export async function fetchProductBySlug(slug: string): Promise<Product | null> 
     return null;
   }
   const products: Product[] = await res.json();
-  console.log(`Fetched product with slug "${slug}":`, products);
   
   return products.length > 0 ? products[0] : null;
 }

@@ -2,30 +2,52 @@
 
 import { fetchProductBySlug } from "@/lib/queries";
 import { Product } from "@/lib/types";
+import { notFound } from "next/navigation";
 import Link from "next/link";
+import { Metadata } from "next";
 
-type Props = {
-  params: { slug: string };
+export async function generateMetadata({
+  params,
+        }: {
+          params: Promise<{ slug: string }>;
+        }): Promise<Metadata> {
+          const { slug } = await params;
+          const product = await fetchProductBySlug(slug);
+
+          if (!product) {
+            return {
+              title: "Contract Not Found – LF Attorneys",
+              description: "The contract you're looking for doesn't exist.",
+            };
+          }
+
+          return {
+            title: `${product.name} – LF Attorneys`,
+            description: product.description?.replace(/<[^>]+>/g, "").slice(0, 155) || "",
+            openGraph: {
+              title: `${product.name} – LF Attorneys`,
+              description: product.description?.replace(/<[^>]+>/g, "").slice(0, 155) || "",
+              images: product.images?.[0]?.src ? [{ url: product.images[0].src }] : [],
+            },
+          };
+        }
+
+
+
+export const segmentConfig = {
+  dynamic: "force-dynamic",
 };
 
-export const dynamic = "force-dynamic"; // Ensure live data every request
-
 export default async function ContractDetailPage({
-  params,
+// Must await params remember
+params,
 }: {
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-    
-  const product:  Product | null = await fetchProductBySlug(slug);
+  const product: Product | null = await fetchProductBySlug(slug);
 
-  if (!product) {
-    return (
-      <div className="max-w-4xl mx-auto px-6 py-20">
-        <h1 className="text-3xl font-bold">Contract not found</h1>
-      </div>
-    );
-  }
+  if (!product) return notFound();
 
   return (
     <div className="max-w-5xl mx-auto px-6 py-16 grid md:grid-cols-2 gap-12">
@@ -47,24 +69,25 @@ export default async function ContractDetailPage({
       {/* Content */}
       <div className="flex flex-col gap-4">
         <h1 className="text-3xl font-bold">{product.name}</h1>
+
         <div
-          className="prose prose-sm dark:prose-invert"
+          className="prose prose-sm dark:prose-invert max-w-none"
           dangerouslySetInnerHTML={{ __html: product.description }}
         />
+
         <p className="text-gray-500 text-sm">R{product.price}</p>
-        
-        {/* back to all contacts */}
-        <div className="flex gap-8">
-            <button className="btn text-md">
-                Add to Cart
-            </button>
-            <Link
-                href="/contracts"
-                className="btn text-md"
-            >
-                Continue Shopping
-            </Link>
-          </div>
+
+        <div className="flex gap-4 mt-4">
+          <button className="bg-black text-white px-5 py-2 rounded hover:bg-gray-800 transition">
+            Add to Cart
+          </button>
+          <Link
+            href="/contracts"
+            className="px-5 py-2 border border-gray-500 rounded hover:bg-gray-100 transition"
+          >
+            Continue Shopping
+          </Link>
+        </div>
       </div>
     </div>
   );
