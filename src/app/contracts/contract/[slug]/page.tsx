@@ -5,6 +5,7 @@ import { Product } from "@/lib/types";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { Metadata } from "next";
+import AddToCartOrDownload from "@/components/AddToCartOrDownload";
 
 export async function generateMetadata({
   params,
@@ -38,14 +39,10 @@ export const segmentConfig = {
   dynamic: "force-dynamic",
 };
 
-export default async function ContractDetailPage({
-// Must await params remember
-params,
-}: {
-  params: Promise<{ slug: string }>;
-}) {
-  const { slug } = await params;
+export default async function ContractDetailPage({params,}: { params: Promise<{ slug: string }>; }) {
+  const { slug } = await params; //Await params
   const product: Product | null = await fetchProductBySlug(slug);
+  
 
   if (!product) return notFound();
 
@@ -78,9 +75,7 @@ params,
         <p className="text-gray-500 text-sm">R{product.price}</p>
 
         <div className="flex gap-4 mt-4">
-          <button className="bg-black text-white px-5 py-2 rounded hover:bg-gray-800 transition">
-            Add to Cart
-          </button>
+          <AddToCartOrDownload product={product} />
           <Link
             href="/contracts"
             className="px-5 py-2 border border-gray-500 rounded hover:bg-gray-100 transition"

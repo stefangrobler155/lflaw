@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { FaBars, FaTimes } from 'react-icons/fa';
+import CartIcon from "@/components/CartIcon";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -42,6 +43,7 @@ const Navbar = () => {
                 {item.name}
               </Link>
             ))}
+            <CartIcon />
           </div>
 
           {/* Mobile Menu Button */}
@@ -83,6 +85,7 @@ const Navbar = () => {
               {item.name}
             </Link>
           ))}
+          <CartIcon />
         </div>
       </div>
 

@@ -39,4 +39,9 @@ export type Product = {
   short_description: string;
   images: { src: string; alt?: string }[];
   categories: { id: number; name: string; slug: string }[];
+  downloads?: {
+    id: string;
+    name: string;
+    file: string;
+  }[];
 };
