@@ -36,7 +36,6 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${headingFont.variable} ${bodyFont.variable} ${accentFont.variable} antialiased`}>
-        
         <CartProvider>
           <Navbar />
           {children}
