@@ -213,3 +213,23 @@ export async function sendDownloadLog(email: string, slug: string) {
 
   return res.json();
 }
+
+// Log downloads
+
+export async function logDownload(email: string, slug: string): Promise<"success" | "already_downloaded" | "error"> {
+  try {
+    const res = await fetch("https://lf.sfgweb.co.za/wp-json/lf/v1/download", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, slug }),
+    });
+
+    if (res.status === 403) return "already_downloaded";
+    if (!res.ok) return "error";
+
+    return "success";
+  } catch (err) {
+    console.error("Download log failed:", err);
+    return "error";
+  }
+}

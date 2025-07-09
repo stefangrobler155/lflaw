@@ -1,53 +1,41 @@
-// src/pages/api/generate-pdf.ts
-
 import { NextApiRequest, NextApiResponse } from "next";
 import { PDFDocument, rgb, StandardFonts } from "pdf-lib";
-import fs from "fs";
-import path from "path";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  if (req.method !== "POST") {
-    return res.status(405).end("Method not allowed");
-  }
+  if (req.method !== "POST") return res.status(405).end("Method Not Allowed");
+
+  const { templateUrl, slug, ...formData } = req.body;
+
+  if (!templateUrl) return res.status(400).json({ error: "Missing template URL." });
 
   try {
-    const { fullName, companyName, email, notes } = req.body;
+    const templateRes = await fetch(templateUrl);
+    const textContent = await templateRes.text();
 
-    // Load the blank template
-    const templatePath = path.join(process.cwd(), "public/template/contract-template.pdf");
-    const existingPdfBytes = fs.readFileSync(templatePath);
+    // Replace placeholders like {{fullName}} with actual values
+    let filledText = textContent;
+    for (const [key, value] of Object.entries(formData)) {
+      const placeholder = `{{${key}}}`;
+      filledText = filledText.replaceAll(placeholder, String(value));
+    }
 
-    const pdfDoc = await PDFDocument.load(existingPdfBytes);
-    const page = pdfDoc.getPages()[0];
-    const { width, height } = page.getSize();
+    // Generate the PDF
+    const pdfDoc = await PDFDocument.create();
+    const page = pdfDoc.addPage();
     const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
+    const { height } = page.getSize();
 
-    const fontSize = 12;
+    const lines = filledText.split("\n");
+    let y = height - 50;
 
-    // Draw data onto the PDF
-    page.drawText(`Name: ${fullName}`, { x: 50, y: height - 100, size: fontSize, font, color: rgb(0, 0, 0) });
-    page.drawText(`Company: ${companyName}`, { x: 50, y: height - 120, size: fontSize, font });
-    page.drawText(`Email: ${email}`, { x: 50, y: height - 140, size: fontSize, font });
-
-    // Handle multiline notes (optional)
-    if (notes) {
-    const lines = notes.split("\n");
-    lines.forEach((line: string, i: number) => {
-    page.drawText(line, {
-        x: 50,
-        y: height - 160 - i * 15,
-        size: fontSize,
-        font,
-    });
-    });
-
+    for (const line of lines) {
+      page.drawText(line, { x: 50, y, size: 12, font, color: rgb(0, 0, 0) });
+      y -= 20;
     }
 
     const pdfBytes = await pdfDoc.save();
-
-    // Return as download
     res.setHeader("Content-Type", "application/pdf");
-    res.setHeader("Content-Disposition", "attachment; filename=nda-customized.pdf");
+    res.setHeader("Content-Disposition", `attachment; filename=${slug}-customized.pdf`);
     res.send(Buffer.from(pdfBytes));
   } catch (err) {
     console.error("PDF generation error:", err);

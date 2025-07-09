@@ -1,51 +1,51 @@
-"use client";
-
-import { useState } from "react";
-import DynamicFormRenderer, { FieldDefinition } from "@/components/forms/DynamicFormRenderer";
+"use client"
+import { useState, useEffect } from "react";
+import { FieldDefinition } from "@/components/forms/DynamicFormRenderer";
+import DynamicFormRenderer from "@/components/forms/DynamicFormRenderer";
+import ContractPreview from "@/components/ContractPreview";
+import { logDownload } from "@/lib/queries";
 
 export default function CustomizeForm({
   slug,
   fields,
+  templateUrl,
 }: {
   slug: string;
   fields: FieldDefinition[];
+  templateUrl: string;
 }) {
   const [submitting, setSubmitting] = useState(false);
+  const [template, setTemplate] = useState("");
+  const [formData, setFormData] = useState<Record<string, string>>({});
 
-  // 🔸 Move this outside handleSubmit
-  const logDownload = async (email: string, slug: string) => {
-    const res = await fetch("https://lf.sfgweb.co.za/wp-json/lf/v1/download", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, slug }),
-    });
+  useEffect(() => {
+    // Fetch template text from WooCommerce download URL
+    fetch(templateUrl)
+      .then((res) => res.text())
+      .then(setTemplate)
+      .catch((err) => console.error("Failed to load template:", err));
+  }, [templateUrl]);
 
-    const data = await res.json();
-    return data.status; // "logged" or "already_downloaded"
-  };
-
-  const handleSubmit = async (payload: Record<string, string>) => {
+  const handleSubmit = async (data: Record<string, string>) => {
     setSubmitting(true);
+
+    const status = await logDownload(data.email, slug);
+    if (status === "already_downloaded") {
+      alert("You’ve already downloaded this contract.");
+      setSubmitting(false);
+      return;
+    }
+
     try {
-      // 🔐 Step 1: Check with WordPress if already downloaded
-      const status = await logDownload(payload.email, slug);
-
-      if (status === "already_downloaded") {
-        alert("You’ve already downloaded this contract.");
-        setSubmitting(false);
-        return;
-      }
-
-      // ✅ Step 2: Generate PDF
-      const response = await fetch("/api/generate-pdf", {
+      const res = await fetch("/api/generate-pdf", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ slug, ...payload }),
+        body: JSON.stringify({ ...data, slug, templateUrl }),
       });
 
-      if (!response.ok) throw new Error("Failed to generate PDF");
+      if (!res.ok) throw new Error("PDF generation failed");
 
-      const blob = await response.blob();
+      const blob = await res.blob();
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
@@ -54,7 +54,6 @@ export default function CustomizeForm({
       link.click();
       link.remove();
 
-      // ✅ Optional Redirect
       setTimeout(() => {
         window.location.href = "/success";
       }, 1000);
@@ -66,5 +65,23 @@ export default function CustomizeForm({
     }
   };
 
-  return <DynamicFormRenderer fields={fields} onSubmit={handleSubmit} submitting={submitting} />;
+  return (
+    <div>
+      <DynamicFormRenderer
+        fields={fields}
+        onSubmit={(data) => {
+          setFormData(data); // Track for preview
+          return handleSubmit(data);
+        }}
+        submitting={submitting}
+      />
+
+      {template && Object.keys(formData).length > 0 && (
+        <div>
+          <h2 className="mt-10 text-lg font-semibold">Preview</h2>
+          <ContractPreview template={template} formData={formData} />
+        </div>
+      )}
+    </div>
+  );
 }
