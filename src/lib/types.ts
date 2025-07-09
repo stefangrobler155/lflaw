@@ -32,6 +32,7 @@ export type ProductCategory = {
 // This type represents a product in WooCommerce
 export type Product = {
   id: number;
+  acf: string;
   name: string;
   slug: string;
   price: string;
@@ -44,4 +45,18 @@ export type Product = {
     name: string;
     file: string;
   }[];
+   meta_data: {
+    id: number;
+    key: string;
+    value: string;
+  }[];
+};
+export type FormField = {
+  label: string;
+  name: string;
+  type: "text" | "email" | "date" | "textarea";
+  required?: boolean;
+};
+export type ProductWithFormFields = Product & {
+  form_fields?: FormField[];
 };

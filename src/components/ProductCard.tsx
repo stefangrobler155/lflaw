@@ -6,6 +6,7 @@ export default function ProductCard({ product }: { product: Product }) {
   const imageSrc = product.images?.[0]?.src || "";
   const imageAlt = product.images?.[0]?.alt || product.name;
 
+
   return (
     <div className="flex flex-row items-center gap-6 border border-gray-200 dark:border-gray-700 rounded-lg shadow hover:shadow-lg transition p-4 bg-white dark:bg-black">
       {/* Image Section */}

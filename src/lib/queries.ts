@@ -1,4 +1,4 @@
-import { HeroSection, ProductCategory, Product } from "./types";
+import { HeroSection, ProductCategory, Product, ProductWithFormFields, FormField  } from "./types";
 
 //Fetch Hero Section data from WordPress
 const API_URL = process.env.NEXT_PUBLIC_WORDPRESS_API_URL;
@@ -153,20 +153,63 @@ export async function fetchAllProducts(): Promise<Product[]> {
 }
 
 // Fetch product by slug
-export async function fetchProductBySlug(slug: string): Promise<Product | null> {
+
+
+export async function fetchProductBySlug(slug: string): Promise<ProductWithFormFields | null> {
   const base = process.env.WOOCOMMERCE_API_URL;
   const key = process.env.WOOCOMMERCE_CONSUMER_KEY;
   const secret = process.env.WOOCOMMERCE_CONSUMER_SECRET;
+
   const res = await fetch(
     `${base}/products?slug=${slug}&consumer_key=${key}&consumer_secret=${secret}`,
     { cache: "no-store" }
   );
+
   if (!res.ok) {
-    console.error(`Failed to fetch product with slug "${slug}"`);
+    console.error(`❌ Failed to fetch product with slug "${slug}"`);
     return null;
   }
+
   const products: Product[] = await res.json();
-  
-  return products.length > 0 ? products[0] : null;
+  if (products.length === 0) return null;
+
+  const product = products[0];
+  let form_fields: FormField[] = [];
+
+  const jsonMeta = product.meta_data.find((m) => m.key === "form_fields_json");
+
+  if (jsonMeta?.value) {
+    try {
+      form_fields = JSON.parse(jsonMeta.value);
+      // Optional: validate structure
+      if (!Array.isArray(form_fields)) throw new Error("Not an array");
+    } catch (err) {
+      console.warn(`⚠️ Invalid JSON in form_fields_json for "${slug}"`);
+    }
+  }
+
+  return {
+    ...product,
+    form_fields,
+  };
 }
 
+
+// test
+export async function sendDownloadLog(email: string, slug: string) {
+  const res = await fetch("https://lf.sfgweb.co.za/wp-json/lf/v1/download", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ email, slug }),
+  });
+
+  if (!res.ok) {
+    const error = await res.json();
+    console.error("API error:", error);
+    throw new Error(error?.message || "Failed to log download");
+  }
+
+  return res.json();
+}
