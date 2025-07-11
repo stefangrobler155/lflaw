@@ -1,0 +1,10 @@
+Co-Parenting Agreement
+
+This agreement is made between {{fullName}} and {{otherParent}} regarding their child, {{childName}}, on {{agreementDate}}.
+
+Details:
+{{notes}}
+
+Both parties agree to co-parent cooperatively and in the best interests of the child.
+
+Signature: ________________________

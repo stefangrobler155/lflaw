@@ -187,7 +187,7 @@ export async function fetchProductBySlug(slug: string): Promise<ProductWithFormF
       console.warn(`⚠️ Invalid JSON in form_fields_json for "${slug}"`);
     }
   }
-
+console.log(product.downloads)
   return {
     ...product,
     form_fields,
