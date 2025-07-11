@@ -8,10 +8,11 @@ export async function addToWooCart(productId: number) {
       ...(cartKey && { "CoCart-API": cartKey }),
     },
     body: JSON.stringify({
-      id: String(productId),
+      id: String(productId), // must be a string
       quantity: "1",
     }),
-  });
+    credentials: "include", // ✅ This is required to persist cart
+  })
 
   if (!res.ok) {
     const error = await res.text();
