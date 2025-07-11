@@ -13,7 +13,7 @@ export default function AddToCartOrDownload({ product }: { product: Product }) {
 
   const [showModal, setShowModal] = useState(false);
   const router = useRouter();
-  const { addToCart } = useCart(); // ✅ hook into local cart context
+  const { addToCart, syncCartWithWoo } = useCart(); // ✅ hook into local cart context
 
   const handleFreeSubmit = ({ name, email }: { name: string; email: string }) => {
     const query = new URLSearchParams({ name, email });
@@ -44,6 +44,7 @@ export default function AddToCartOrDownload({ product }: { product: Product }) {
         try {
           await addToWooCart(product.id); // ✅ WooCommerce cart
           addToCart(product);             // ✅ Frontend cart
+          await syncCartWithWoo();
           alert("Added to WooCommerce cart!");
         } catch (error) {
           console.error(error);

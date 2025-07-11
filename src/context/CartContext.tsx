@@ -1,69 +1,86 @@
 "use client";
-
 import { createContext, useContext, useEffect, useState } from "react";
 import { Product } from "@/lib/types";
+import { getWooCart } from "@/lib/getWooCart";
 
-export type CartItem = {
+type CartItem = {
   product: Product;
   quantity: number;
 };
 
-const CartContext = createContext<{
+type CartContextType = {
   items: CartItem[];
-  addToCart: (product: Product, quantity?: number) => void;
-  removeFromCart: (id: number) => void;
+  addToCart: (product: Product) => void;
+  removeFromCart: (productId: number) => void;
   clearCart: () => void;
-} | undefined>(undefined);
+  syncCartWithWoo: () => Promise<void>;
+};
+
+const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export function CartProvider({ children }: { children: React.ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([]);
 
-  // Load from localStorage
-  useEffect(() => {
-    const stored = localStorage.getItem("cart");
-    if (stored) {
-      try {
-        setItems(JSON.parse(stored));
-      } catch {
-        console.warn("Failed to parse cart data");
-      }
-    }
-  }, []);
-
-  // Save to localStorage
-  useEffect(() => {
-    localStorage.setItem("cart", JSON.stringify(items));
-  }, [items]);
-
-  const addToCart = (product: Product, quantity = 1) => {
+  const addToCart = (product: Product) => {
     setItems((prev) => {
       const existing = prev.find((item) => item.product.id === product.id);
       if (existing) {
         return prev.map((item) =>
           item.product.id === product.id
-            ? { ...item, quantity: item.quantity + quantity }
+            ? { ...item, quantity: item.quantity + 1 }
             : item
         );
       }
-      return [...prev, { product, quantity }];
+      return [...prev, { product, quantity: 1 }];
     });
   };
 
-  const removeFromCart = (id: number) => {
-    setItems((prev) => prev.filter((item) => item.product.id !== id));
+  const removeFromCart = (productId: number) => {
+    setItems((prev) => prev.filter((item) => item.product.id !== productId));
   };
 
-  const clearCart = () => setItems([]);
+  const clearCart = () => {
+    setItems([]);
+  };
+
+  // ✅ Pull from Woo backend on mount
+  const syncCartWithWoo = async () => {
+    try {
+      const data = await getWooCart();
+      const syncedItems: CartItem[] = data.items.map((wooItem: any) => ({
+        product: {
+          id: wooItem.id,
+          name: wooItem.name,
+          price: wooItem.price,
+          slug: wooItem.slug,
+          images: wooItem.images,
+          downloads: wooItem.downloads,
+          categories: wooItem.categories,
+        },
+        quantity: wooItem.quantity,
+      }));
+
+      setItems(syncedItems);
+    } catch (err) {
+      console.warn("Could not sync with WooCommerce:", err);
+    }
+  };
+
+  useEffect(() => {
+    syncCartWithWoo(); // ✅ sync on load
+  }, []);
 
   return (
-    <CartContext.Provider value={{ items, addToCart, removeFromCart, clearCart }}>
+    <CartContext.Provider
+      value={{ items, addToCart, removeFromCart, clearCart, syncCartWithWoo }}
+    >
       {children}
     </CartContext.Provider>
   );
 }
 
-export function useCart() {
-  const context = useContext(CartContext);
-  if (!context) throw new Error("useCart must be used inside <CartProvider>");
-  return context;
-}
+export const useCart = () => {
+  const ctx = useContext(CartContext);
+  if (!ctx) throw new Error("useCart must be used within CartProvider");
+  return ctx;
+};
