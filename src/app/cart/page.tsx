@@ -4,7 +4,7 @@ import { useCart } from "@/context/CartContext";
 import Link from "next/link";
 
 export default function CartPage() {
-  const { items, removeFromCart, clearCart } = useCart();
+  const { items, removeFromCart } = useCart(); // Removed unused clearCart
 
   const total = items.reduce(
     (sum, item) => sum + Number(item.product.price) * item.quantity,

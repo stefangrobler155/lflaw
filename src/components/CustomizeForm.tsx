@@ -1,5 +1,6 @@
-"use client"
-import { useState, useEffect } from "react";
+"use client";
+
+import { useState } from "react";
 import { FieldDefinition } from "@/components/forms/DynamicFormRenderer";
 import DynamicFormRenderer from "@/components/forms/DynamicFormRenderer";
 import ContractPreview from "@/components/ContractPreview";
@@ -15,48 +16,46 @@ export default function CustomizeForm({
   templateUrl: string;
 }) {
   const [submitting, setSubmitting] = useState(false);
-  const [template, setTemplate] = useState("");
   const [formData, setFormData] = useState<Record<string, string>>({});
 
+  const handleSubmit = async (data: Record<string, string>) => {
+    setSubmitting(true);
 
-const handleSubmit = async (data: Record<string, string>) => {
-  setSubmitting(true);
+    const status = await logDownload(data.email, slug);
+    if (status === "already_downloaded") {
+      alert("You’ve already downloaded this contract.");
+      setSubmitting(false);
+      return;
+    }
 
-  const status = await logDownload(data.email, slug);
-  if (status === "already_downloaded") {
-    alert("You’ve already downloaded this contract.");
-    setSubmitting(false);
-    return;
-  }
+    try {
+      const res = await fetch("/api/generate-pdf", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...data, slug, templateUrl, fontFamily: "Times" }),
+      });
 
-  try {
-    const res = await fetch("/api/generate-pdf", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ...data, slug, templateUrl, fontFamily: "Times" }),
-    });
+      if (!res.ok) throw new Error("PDF generation failed");
 
-    if (!res.ok) throw new Error("PDF generation failed");
+      const blob = await res.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `${slug}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
 
-    const blob = await res.blob();
-    const url = window.URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = `${slug}.pdf`;
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
-
-    setTimeout(() => {
-      window.location.href = "/success";
-    }, 1000);
-  } catch (err) {
-    console.error(err);
-    alert("Failed to generate the contract.");
-  } finally {
-    setSubmitting(false);
-  }
-};
+      setTimeout(() => {
+        window.location.href = "/success";
+      }, 1000);
+    } catch (err) {
+      console.error(err);
+      alert("Failed to generate the contract.");
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   return (
     <div>
@@ -69,10 +68,10 @@ const handleSubmit = async (data: Record<string, string>) => {
         submitting={submitting}
       />
 
-      {template && Object.keys(formData).length > 0 && (
+      {Object.keys(formData).length > 0 && (
         <div>
           <h2 className="mt-10 text-lg font-semibold">Preview</h2>
-          <ContractPreview template={template} formData={formData} />
+          <ContractPreview template={""} formData={formData} />
         </div>
       )}
     </div>

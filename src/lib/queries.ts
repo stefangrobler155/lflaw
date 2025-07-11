@@ -36,29 +36,25 @@ export async function fetchHeroSection(): Promise<HeroSection | null> {
       return null;
     }
 
-return {
-  hero_title: acf.hero.hero_title,
-  hero_subtitle: acf.hero.hero_subtitle,
-  hero_button_primary: {
-    text: acf.hero.hero_button_primary_text,
-    url: acf.hero.hero_button_primary_url,
-  },
-  hero_button_secondary: {
-    text: acf.hero.hero_button_secondary_text,
-    url: acf.hero.hero_button_secondary_url,
-  },
-  hero_image_url: acf.hero.hero_image_url,
-};
-
+    return {
+      hero_title: acf.hero.hero_title,
+      hero_subtitle: acf.hero.hero_subtitle,
+      hero_button_primary: {
+        text: acf.hero.hero_button_primary_text,
+        url: acf.hero.hero_button_primary_url,
+      },
+      hero_button_secondary: {
+        text: acf.hero.hero_button_secondary_text,
+        url: acf.hero.hero_button_secondary_url,
+      },
+      hero_image_url: acf.hero.hero_image_url,
+    };
   } catch (error) {
     console.error("Error fetching hero section:", error);
     return null;
   }
 }
 
-
-// lib/queries.ts
-//Fecth WooCommerce categories for the "Contracts" section
 export async function fetchWooCategories() {
   const base = process.env.NEXT_PUBLIC_WC_BASE_URL;
   const key = process.env.NEXT_PUBLIC_WC_CONSUMER_KEY;
@@ -82,9 +78,6 @@ export async function fetchWooCategories() {
   return data;
 }
 
-// src/lib/queries.ts
-
-
 export async function fetchProductCategories(): Promise<ProductCategory[]> {
   const baseUrl = process.env.WOOCOMMERCE_API_URL;
   const key = process.env.WOOCOMMERCE_CONSUMER_KEY;
@@ -107,13 +100,10 @@ export async function fetchProductCategories(): Promise<ProductCategory[]> {
   const data: ProductCategory[] = await res.json();
 
   return data.filter((cat) => 
-    cat.parent === 21 &&           // Only children of "Contracts"
-    cat.slug !== "uncategorized"  // Exclude "Uncategorized"
+    cat.parent === 21 &&
+    cat.slug !== "uncategorized"
   );
 }
-
-//Fetch products by category slug
-// This function fetches products based on the category slug
 
 export async function fetchProductsByCategorySlug(slug: string) {
   const base = process.env.WOOCOMMERCE_API_URL;
@@ -131,9 +121,6 @@ export async function fetchProductsByCategorySlug(slug: string) {
   return data;
 }
 
-
-//fetch all products
-// This function fetches all products from the WooCommerce API
 export async function fetchAllProducts(): Promise<Product[]> {
   const base = process.env.WOOCOMMERCE_API_URL;
   const key = process.env.WOOCOMMERCE_CONSUMER_KEY;
@@ -151,9 +138,6 @@ export async function fetchAllProducts(): Promise<Product[]> {
 
   return res.json();
 }
-
-// Fetch product by slug
-
 
 export async function fetchProductBySlug(slug: string): Promise<ProductWithFormFields | null> {
   const base = process.env.WOOCOMMERCE_API_URL;
@@ -181,21 +165,18 @@ export async function fetchProductBySlug(slug: string): Promise<ProductWithFormF
   if (jsonMeta?.value) {
     try {
       form_fields = JSON.parse(jsonMeta.value);
-      // Optional: validate structure
       if (!Array.isArray(form_fields)) throw new Error("Not an array");
-    } catch (err) {
+    } catch (e) {
       console.warn(`⚠️ Invalid JSON in form_fields_json for "${slug}"`);
     }
   }
-console.log(product.downloads)
+  console.log(product.downloads);
   return {
     ...product,
     form_fields,
   };
 }
 
-
-// test
 export async function sendDownloadLog(email: string, slug: string) {
   const res = await fetch("https://lf.sfgweb.co.za/wp-json/lf/v1/download", {
     method: "POST",
@@ -214,8 +195,6 @@ export async function sendDownloadLog(email: string, slug: string) {
   return res.json();
 }
 
-// Log downloads
-
 export async function logDownload(email: string, slug: string): Promise<"success" | "already_downloaded" | "error"> {
   try {
     const res = await fetch("https://lf.sfgweb.co.za/wp-json/lf/v1/download", {
@@ -228,8 +207,8 @@ export async function logDownload(email: string, slug: string): Promise<"success
     if (!res.ok) return "error";
 
     return "success";
-  } catch (err) {
-    console.error("Download log failed:", err);
+  } catch (e) {
+    console.error("Download log failed:", e);
     return "error";
   }
 }

@@ -2,7 +2,7 @@ import { fetchProductBySlug } from "@/lib/queries";
 import { verifyWooOrder } from "@/lib/verifyWooOrder";
 import { notFound, redirect } from "next/navigation";
 import CustomizeForm from "@/components/CustomizeForm";
-import type { Metadata } from "next";
+
 
 export default async function CustomizeContractPage({
   params,
