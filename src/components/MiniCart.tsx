@@ -156,7 +156,7 @@ useEffect(() => {
                   <span className="font-bold">R{total.toFixed(2)}</span>
                 </div>
                 <Link
-                  href="/cart"
+                  href="https://lf.sfgweb.co.za/checkout"
                   onClick={toggleDrawer}
                   className="block w-full text-center bg-black text-white py-2 rounded hover:bg-gray-800 transition"
                 >
