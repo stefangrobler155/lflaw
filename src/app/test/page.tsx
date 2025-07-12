@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { sendDownloadLog } from "@/lib/queries";
 
 export default function TestPage() {
@@ -16,6 +16,19 @@ export default function TestPage() {
       setStatus("❌ Error submitting download");
     }
   };
+useEffect(() => {
+  fetch("https://lf.sfgweb.co.za/wp-json/cocart/v2/cart/add-item", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    credentials: "include",
+    body: JSON.stringify({ id: "124", quantity: "1" }),
+  })
+    .then((res) => res.json())
+    .then(console.log)
+    .catch(console.error);
+}, []);
 
   return (
     <main className="max-w-md mx-auto py-20 text-center">
