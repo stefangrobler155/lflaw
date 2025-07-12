@@ -66,10 +66,15 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const trySyncWooCart = async () => {
+    const cartKey = localStorage.getItem("cocart_key");
+    if (!cartKey) return;
+    await syncCartWithWoo();
+  };
+  
   useEffect(() => {
-    syncCartWithWoo(); // ✅ sync on load
+    trySyncWooCart();
   }, []);
-
   return (
     <CartContext.Provider
       value={{ items, addToCart, removeFromCart, clearCart, syncCartWithWoo }}

@@ -1,14 +1,17 @@
 export async function addToWooCart(productId: number) {
+  const cartKey = localStorage.getItem("cocart_key");
+
   const res = await fetch("https://lf.sfgweb.co.za/wp-json/cocart/v2/cart/add-item", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
+      ...(cartKey && { "CoCart-API": cartKey })
     },
-    credentials: "include", // must be set to persist cart session
+    credentials: "include", // persist cart session via cookies
     body: JSON.stringify({
-      id: String(productId), // must be string
+      id: String(productId),
       quantity: "1"
-    }),
+    })
   });
 
   if (!res.ok) {
@@ -16,9 +19,9 @@ export async function addToWooCart(productId: number) {
     throw new Error(`WooCommerce error: ${error}`);
   }
 
-  const cartKey = res.headers.get("CoCart-API-Cart-Key");
-  if (cartKey) {
-    localStorage.setItem("cocart_key", cartKey);
+  const newKey = res.headers.get("CoCart-API-Cart-Key");
+  if (newKey) {
+    localStorage.setItem("cocart_key", newKey);
   }
 
   return res.json();
