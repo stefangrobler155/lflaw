@@ -1,4 +1,3 @@
-import Head from 'next/head';
 import Navbar from "@/components/Navbar";
 import "./globals.css";
 import type { Metadata } from "next";
@@ -36,11 +35,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <Head>
-        {process.env.NODE_ENV === 'development' && (
-          <script src="http://localhost:8097" />
-        )}
-      </Head>
+      
       <body className={`${headingFont.variable} ${bodyFont.variable} ${accentFont.variable} antialiased`}>
         <CartProvider>
           <Navbar />
