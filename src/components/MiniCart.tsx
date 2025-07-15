@@ -10,54 +10,16 @@ import Link from "next/link";
 import ScrollLockOverlay from "@/components/ScrollLockOverlay";
 
 export default function MiniCart() {
-  const { items, removeFromCart } = useCart();
+  // const { items, removeFromCart } = useCart();
   const [isOpen, setIsOpen] = useState(false);
   const pathname = usePathname();
 
   const toggleDrawer = () => setIsOpen((prev) => !prev);
 
-  const total = items.reduce(
-    (sum, item) => sum + Number(item.product.price) * item.quantity,
-    0
-  );
-
-useEffect(() => {
-  if (isOpen) {
-    // Calculate scrollbar width
-    const scrollBarWidth = window.innerWidth - document.documentElement.clientWidth;
-
-    // Fix body scroll & shift
-    document.body.style.overflow = "hidden";
-    document.body.style.position = "fixed";
-    document.body.style.top = `-${window.scrollY}px`;
-    document.body.style.width = "100%";
-    document.body.style.paddingRight = `${scrollBarWidth}px`;
-  } else {
-    // Reset scroll position before restoring styles
-    const scrollY = document.body.style.top;
-    document.body.style.overflow = "";
-    document.body.style.position = "";
-    document.body.style.top = "";
-    document.body.style.width = "";
-    document.body.style.paddingRight = "";
-
-    // Restore scroll position
-    if (scrollY) {
-      window.scrollTo(0, parseInt(scrollY || "0") * -1);
-    }
-  }
-
-  // Cleanup on unmount
-  return () => {
-    document.body.style.overflow = "";
-    document.body.style.position = "";
-    document.body.style.top = "";
-    document.body.style.width = "";
-    document.body.style.paddingRight = "";
-  };
-}, [isOpen]);
-
-
+  // const total = items.reduce(
+  //   (sum, item) => sum + Number(item.product.price) * item.quantity,
+  //   0
+  // );
 
   // ⌨️ Close on Escape key
   useEffect(() => {
@@ -82,17 +44,19 @@ useEffect(() => {
       {/* Trigger Button */}
       <button onClick={toggleDrawer} className="relative text-white">
         <FaShoppingCart size={24} />
-        {items.length > 0 && (
+        {/* {items.length > 0 && (
           <span className="absolute -top-2 -right-2 text-xs bg-red-600 text-white rounded-full px-1.5 py-0.5">
             {items.length}
           </span>
-        )}
+        )} */}
       </button>
 
       <AnimatePresence>
         {isOpen && (
           <>
-            <ScrollLockOverlay active={true} /> {/* Prevent scroll */}
+            {/* ScrollLockOverlay will handle body scrolling */}
+            <ScrollLockOverlay active={true} />
+            
             {/* Overlay */}
             <motion.div
               initial={{ opacity: 0 }}
@@ -120,7 +84,7 @@ useEffect(() => {
               </div>
 
               <div className="p-4 overflow-y-auto flex-grow">
-                {items.length === 0 ? (
+                {/* {items.length === 0 ? (
                   <p className="text-sm text-gray-500">Your cart is empty.</p>
                 ) : (
                   <ul className="space-y-4">
@@ -147,13 +111,13 @@ useEffect(() => {
                       </li>
                     ))}
                   </ul>
-                )}
+                )} */}
               </div>
 
               <div className="p-4 border-t">
                 <div className="flex justify-between mb-3">
                   <span className="font-medium">Total:</span>
-                  <span className="font-bold">R{total.toFixed(2)}</span>
+                  {/* <span className="font-bold">R{total.toFixed(2)}</span> */}
                 </div>
                 <Link
                   href="https://lf.sfgweb.co.za/checkout"

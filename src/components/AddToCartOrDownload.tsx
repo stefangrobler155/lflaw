@@ -4,7 +4,7 @@ import { Product } from "@/lib/types";
 import { useState } from "react";
 import FreeDownloadModal from "@/components/FreeDownloadModal";
 import { useRouter } from "next/navigation";
-import { addToWooCart } from "@/lib/addToWooCart";
+// We only need the useCart hook now!
 import { useCart } from "@/context/CartContext";
 
 export default function AddToCartOrDownload({ product }: { product: Product }) {
@@ -13,13 +13,15 @@ export default function AddToCartOrDownload({ product }: { product: Product }) {
 
   const [showModal, setShowModal] = useState(false);
   const router = useRouter();
-  const { addToCart, syncCartWithWoo } = useCart(); // ✅ hook into local cart context
+  // Get the addToCart function and loading state from our context
+  const { addToCart, loading } = useCart();
 
   const handleFreeSubmit = ({ name, email }: { name: string; email: string }) => {
     const query = new URLSearchParams({ name, email });
     router.push(`/customize/${product.slug}?${query.toString()}`);
   };
 
+  // This part for free products remains the same. No changes needed here.
   if (isFree && downloadUrl) {
     return (
       <>
@@ -38,22 +40,16 @@ export default function AddToCartOrDownload({ product }: { product: Product }) {
     );
   }
 
+  // --- This is the simplified part ---
   return (
     <button
-      onClick={async () => {
-        try {
-          await addToWooCart(product.id); // ✅ WooCommerce cart
-          addToCart(product);             // ✅ Frontend cart
-          await syncCartWithWoo();
-          alert("Added to WooCommerce cart!");
-        } catch (error) {
-          console.error(error);
-          alert("Failed to add to cart.");
-        }
-      }}
-      className="bg-black text-white px-4 py-2 rounded"
+      // The onClick handler is now much cleaner
+      onClick={() => addToCart(product.id)}
+      // Disable the button while the cart is being updated to prevent double-clicks
+      disabled={loading}
+      className="bg-black text-white px-4 py-2 rounded disabled:bg-gray-500 disabled:cursor-not-allowed"
     >
-      Add to Cart
+      {loading ? 'Adding...' : 'Add to Cart'}
     </button>
   );
 }

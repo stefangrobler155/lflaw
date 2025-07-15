@@ -1,3 +1,4 @@
+// src\lib\addToWooCart.ts
 export async function addToWooCart(productId: number) {
   const cartKey = localStorage.getItem("cocart_key");
 

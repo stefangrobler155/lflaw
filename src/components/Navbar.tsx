@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { FaBars, FaTimes, FaChevronDown } from "react-icons/fa";
-import MiniCart from "@/components/MiniCart";
+// import MiniCart from "@/components/MiniCart";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -81,7 +81,7 @@ const Navbar = () => {
               )
             )}
 
-            <MiniCart />
+            {/* <MiniCart /> */}
           </div>
 
           {/* Mobile Menu Button */}
@@ -155,7 +155,7 @@ const Navbar = () => {
                 )}
               </div>
             ))}
-          <MiniCart />
+          {/* <MiniCart /> */}
         </div>
       </div>
 

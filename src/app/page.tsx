@@ -6,7 +6,6 @@ import { fetchProductCategories } from '@/lib/queries';
 
 export default async function Home() {
   const hero = await fetchHeroSection();
-  // console.log("Hero Section Data:", hero);
   const categories = await fetchProductCategories();
 
   return (

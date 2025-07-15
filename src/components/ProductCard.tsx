@@ -1,3 +1,5 @@
+// src\components\ProductCard.tsx
+
 import Link from "next/link";
 import { Product } from "@/lib/types";
 import AddToCartOrDownload from "@/components/AddToCartOrDownload";
