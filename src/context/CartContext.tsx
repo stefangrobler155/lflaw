@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useState, useEffect, useContext, ReactNode } from 'react';
-import { Product } from '@/lib/types';
+
 
 // This is the shape of the cart data we expect back from the CoCart API
 type WooCart = {
