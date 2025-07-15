@@ -40,7 +40,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const fetchCart = async () => {
     if (!loading) setLoading(true); // Set loading only if not already loading
     try {
-      const response = await fetch(`${process.env.WOOCOMMERCE_URL}/wp-json/cocart/v2/cart`);
+      const response = await fetch(`${process.env.NEXT_PUBLIC_WOOCOMMERCE_URL}/wp-json/cocart/v2/cart`);
       if (!response.ok) throw new Error("Failed to fetch cart data.");
       const data: WooCart = await response.json();
       setCart(data);
@@ -64,7 +64,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const addToCart = async (productId: number, quantity: number = 1) => {
     setLoading(true);
     try {
-      const response = await fetch(`${process.env.WOOCOMMERCE_URL}/wp-json/cocart/v2/cart/add-item`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_WOOCOMMERCE_URL}/wp-json/cocart/v2/cart/add-item`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -96,7 +96,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const updateItemQuantity = async (itemKey: string, quantity: number) => {
     setLoading(true);
     try {
-        const response = await fetch(`${process.env.WOOCOMMERCE_URL}/wp-json/cocart/v2/cart/item/${itemKey}`, {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_WOOCOMMERCE_URL}/wp-json/cocart/v2/cart/item/${itemKey}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ quantity }),
@@ -119,7 +119,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const removeItem = async (itemKey: string) => {
     setLoading(true);
     try {
-        const response = await fetch(`${process.env.WOOCOMMERCE_URL}/wp-json/cocart/v2/cart/item/${itemKey}`, {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_WOOCOMMERCE_URL}/wp-json/cocart/v2/cart/item/${itemKey}`, {
             method: 'DELETE',
         });
 
