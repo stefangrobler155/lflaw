@@ -2,15 +2,27 @@
 
 import { createContext, useState, useEffect, useContext, ReactNode } from 'react';
 
+// --- Type Definitions ---
+type WooCartItem = {
+  item_key: string;
+  name: string;
+  quantity: {
+    value: number;
+  };
+  totals: {
+    total: string;
+  };
+  featured_image: string;
+  // Add any other item properties you need
+};
 
 // This is the shape of the cart data we expect back from the CoCart API
 type WooCart = {
-  items: any[]; // Define a more specific type if you know the item structure
+  items: WooCartItem[];
   totals: {
     total: string;
   };
   checkout_url: string;
-  // Add other properties from CoCart response as needed
 };
 
 // Define the context type
@@ -25,6 +37,7 @@ type CartContextType = {
 
 // The backend URL where your WordPress instance is hosted
 const NEXT_PUBLIC_WOOCOMMERCE_URL = 'https://lf.sfgweb.co.za';
+const CART_KEY_LOCAL_STORAGE = 'cocart_cart_key';
 
 // Create the context with a default undefined value
 const CartContext = createContext<CartContextType | undefined>(undefined);
@@ -34,13 +47,41 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const [cart, setCart] = useState<WooCart | null>(null);
   const [loading, setLoading] = useState(true);
 
+    // This helper function builds the headers for each API request
+  const getApiHeaders = () => {
+    const headers: HeadersInit = {
+      'Content-Type': 'application/json',
+    };
+
+  // Get the cart key from localStorage
+  const cartKey = localStorage.getItem(CART_KEY_LOCAL_STORAGE);
+  // ✅ Add the cart key to the request headers if it exists
+  if (cartKey) {
+    headers['x-cocart-cart-key'] = cartKey;
+  }
+  return headers;
+};
+
+  // This helper function checks the response for a new key and stores it
+  const handleResponseSession = (response: Response) => {
+    // ✅ After the request, check for a new key in the response headers
+    const newCartKey = response.headers.get('x-cocart-cart-key');
+    // ✅ If a new key is found, store it for future requests
+    if (newCartKey) {
+      localStorage.setItem(CART_KEY_LOCAL_STORAGE, newCartKey);
+    }
+  };
   /**
    * Fetches the current cart from CoCart and updates the local state.
    */
   const fetchCart = async () => {
     if (!loading) setLoading(true); // Set loading only if not already loading
     try {
-      const response = await fetch(`${NEXT_PUBLIC_WOOCOMMERCE_URL}/wp-json/cocart/v2/cart`);
+      const response = await fetch(`${NEXT_PUBLIC_WOOCOMMERCE_URL}/wp-json/cocart/v2/cart`, {
+        headers: getApiHeaders(),
+      });
+      handleResponseSession(response); // Check for a new cart key in the response headers
+      // If the response is not ok, throw an error
       if (!response.ok) throw new Error("Failed to fetch cart data.");
       const data: WooCart = await response.json();
       setCart(data);
@@ -66,19 +107,14 @@ export function CartProvider({ children }: { children: ReactNode }) {
     try {
       const response = await fetch(`${NEXT_PUBLIC_WOOCOMMERCE_URL}/wp-json/cocart/v2/cart/add-item`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: getApiHeaders(),
         body: JSON.stringify({
           id: String(productId), // CoCart expects string IDs
           quantity: String(quantity),
         }),
       });
-
-      if (!response.ok) {
-        // Log more detail on error
-        const errorBody = await response.json();
-        throw new Error(errorBody.message || "Failed to add item to cart.");
-      }
-      
+      handleResponseSession(response);
+      if (!response.ok) throw new Error("Failed to add item to cart.");
       const newCart: WooCart = await response.json();
       setCart(newCart);
       alert("Added to cart!");
@@ -98,12 +134,11 @@ export function CartProvider({ children }: { children: ReactNode }) {
     try {
         const response = await fetch(`${NEXT_PUBLIC_WOOCOMMERCE_URL}/wp-json/cocart/v2/cart/item/${itemKey}`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: getApiHeaders(),
             body: JSON.stringify({ quantity }),
         });
-
+        handleResponseSession(response);
         if (!response.ok) throw new Error("Failed to update quantity.");
-        
         const newCart: WooCart = await response.json();
         setCart(newCart);
     } catch (error) {
@@ -121,10 +156,10 @@ export function CartProvider({ children }: { children: ReactNode }) {
     try {
         const response = await fetch(`${NEXT_PUBLIC_WOOCOMMERCE_URL}/wp-json/cocart/v2/cart/item/${itemKey}`, {
             method: 'DELETE',
+            headers: getApiHeaders(),
         });
-
+        handleResponseSession(response);
         if (!response.ok) throw new Error("Failed to remove item.");
-
         const newCart: WooCart = await response.json();
         setCart(newCart);
     } catch (error) {
@@ -134,7 +169,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const value = { cart, loading, addToCart, updateItemQuantity, removeItem, fetchCart };
+
+ const value = { cart, loading, addToCart, updateItemQuantity, removeItem, fetchCart };
 
   return (
     <CartContext.Provider value={value}>
@@ -143,7 +179,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
   );
 }
 
-// Custom hook for easy consumption of the context
+// --- Custom Hook ---
 export const useCart = () => {
   const context = useContext(CartContext);
   if (context === undefined) {
