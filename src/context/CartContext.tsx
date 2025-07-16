@@ -4,6 +4,7 @@ import { createContext, useState, useEffect, useContext, ReactNode } from 'react
 
 // --- Type Definitions ---
 type WooCartItem = {
+  id: number; // Product ID
   item_key: string;
   name: string;
   quantity: {
@@ -18,6 +19,8 @@ type WooCartItem = {
 
 // This is the shape of the cart data we expect back from the CoCart API
 type WooCart = {
+  id: number;
+  key: string;
   items: WooCartItem[];
   totals: {
     total: string;
