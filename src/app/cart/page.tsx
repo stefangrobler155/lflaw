@@ -78,7 +78,7 @@ export default function CartPage() {
           that navigates away from your Next.js app to the WordPress backend.
         */}
         <a
-          href={cart.checkout_url}
+          href={cart.checkout_url || 'https://lf.sfgweb.co.za/checkout'}
           className="inline-block bg-black text-white px-6 py-3 rounded hover:bg-gray-800 transition text-lg font-semibold"
         >
           Proceed to Checkout
