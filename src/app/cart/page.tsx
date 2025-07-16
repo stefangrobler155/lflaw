@@ -4,7 +4,8 @@ import { useCart } from "@/context/CartContext";
 
 export default function CartPage() {
   const { cart, loading, removeItem, updateItemQuantity } = useCart();
-
+  // Log the full cart object for debugging
+  console.log("Full Cart Object:", cart);
   // Show a loading message while fetching cart
   if (loading && !cart) {
     return (
