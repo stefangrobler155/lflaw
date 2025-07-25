@@ -1,12 +1,12 @@
 // src\lib\addToWooCart.ts
 export async function addToWooCart(productId: number) {
-  const cartKey = localStorage.getItem("cocart_key");
+  const cartKey = localStorage.getItem("cocart_cart_key");
 
   const res = await fetch("https://lf.sfgweb.co.za/wp-json/cocart/v2/cart/add-item", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      ...(cartKey && { "CoCart-API": cartKey })
+      ...(cartKey && { "x-cocart-cart-key": cartKey })
     },
     credentials: "include", // persist cart session via cookies
     body: JSON.stringify({
@@ -20,9 +20,9 @@ export async function addToWooCart(productId: number) {
     throw new Error(`WooCommerce error: ${error}`);
   }
 
-  const newKey = res.headers.get("CoCart-API-Cart-Key");
+  const newKey = res.headers.get("x-cocart-cart-key");
   if (newKey) {
-    localStorage.setItem("cocart_key", newKey);
+    localStorage.setItem("cocart_cart_key", newKey);
   }
 
   return res.json();

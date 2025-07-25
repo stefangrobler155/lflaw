@@ -6,6 +6,13 @@ export default function CartPage() {
   const { cart, loading, removeItem, updateItemQuantity } = useCart();
   // Log the full cart object for debugging
   console.log("Full Cart Object:", cart);
+  console.log("Loading state:", loading);
+  
+  // Log localStorage cart key for debugging
+  if (typeof window !== 'undefined') {
+    const cartKey = localStorage.getItem('cocart_cart_key');
+    console.log("Cart key in localStorage:", cartKey);
+  }
   // Show a loading message while fetching cart
   if (loading && !cart) {
     return (

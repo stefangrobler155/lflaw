@@ -10,16 +10,11 @@ import Link from "next/link";
 import ScrollLockOverlay from "@/components/ScrollLockOverlay";
 
 export default function MiniCart() {
-  // const { items, removeFromCart } = useCart();
+  const { cart, loading, removeItem } = useCart();
   const [isOpen, setIsOpen] = useState(false);
   const pathname = usePathname();
 
   const toggleDrawer = () => setIsOpen((prev) => !prev);
-
-  // const total = items.reduce(
-  //   (sum, item) => sum + Number(item.product.price) * item.quantity,
-  //   0
-  // );
 
   // ⌨️ Close on Escape key
   useEffect(() => {
@@ -44,11 +39,11 @@ export default function MiniCart() {
       {/* Trigger Button */}
       <button onClick={toggleDrawer} className="relative text-white">
         <FaShoppingCart size={24} />
-        {/* {items.length > 0 && (
+        {cart && cart.items.length > 0 && (
           <span className="absolute -top-2 -right-2 text-xs bg-red-600 text-white rounded-full px-1.5 py-0.5">
-            {items.length}
+            {cart.items.length}
           </span>
-        )} */}
+        )}
       </button>
 
       <AnimatePresence>
@@ -84,26 +79,29 @@ export default function MiniCart() {
               </div>
 
               <div className="p-4 overflow-y-auto flex-grow">
-                {/* {items.length === 0 ? (
+                {loading ? (
+                  <p className="text-sm text-gray-500">Loading cart...</p>
+                ) : !cart || cart.items.length === 0 ? (
                   <p className="text-sm text-gray-500">Your cart is empty.</p>
                 ) : (
                   <ul className="space-y-4">
-                    {items.map((item) => (
+                    {cart.items.map((item) => (
                       <li
-                        key={item.product.id}
+                        key={item.item_key}
                         className="flex justify-between items-center border-b pb-2"
                       >
                         <div>
-                          <p className="font-medium">{item.product.name}</p>
+                          <p className="font-medium">{item.name}</p>
                           <p className="text-sm text-gray-500">
-                            Qty: {item.quantity}
+                            Qty: {item.quantity.value}
                           </p>
                         </div>
                         <div className="text-right">
-                          <p>R{Number(item.product.price) * item.quantity}</p>
+                          <p>{item.totals.total}</p>
                           <button
-                            onClick={() => removeFromCart(item.product.id)}
+                            onClick={() => removeItem(item.item_key)}
                             className="text-xs text-red-600 hover:underline"
+                            disabled={loading}
                           >
                             Remove
                           </button>
@@ -111,16 +109,16 @@ export default function MiniCart() {
                       </li>
                     ))}
                   </ul>
-                )} */}
+                )}
               </div>
 
               <div className="p-4 border-t">
                 <div className="flex justify-between mb-3">
                   <span className="font-medium">Total:</span>
-                  {/* <span className="font-bold">R{total.toFixed(2)}</span> */}
+                  <span className="font-bold">{cart?.totals.total || '0.00'}</span>
                 </div>
                 <Link
-                  href="https://lf.sfgweb.co.za/checkout"
+                  href={cart?.checkout_url || "https://lf.sfgweb.co.za/checkout"}
                   onClick={toggleDrawer}
                   className="block w-full text-center bg-black text-white py-2 rounded hover:bg-gray-800 transition"
                 >
